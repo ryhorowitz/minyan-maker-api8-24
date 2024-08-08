@@ -1,11 +1,12 @@
 class AuthenticationController < ApplicationController
-  before_action :authorize_request, except: :login
+  # before_action :authorize_request, except: :login
 
   # POST /signup
   def signup
     user = User.new(user_params)
     if user.save
       render json: user, status: :created
+      # I should log them in on sucessful signup
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
@@ -13,6 +14,7 @@ class AuthenticationController < ApplicationController
 
   # POST /login
   def login
+    Rails.logger.info 'In the login post'
     user = User.find_by(email: params[:email])
     if user&.authenticate(params[:password])
       token = encode_token(user_id: user.id)
