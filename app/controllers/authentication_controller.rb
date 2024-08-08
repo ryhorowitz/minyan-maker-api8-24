@@ -5,8 +5,13 @@ class AuthenticationController < ApplicationController
   def signup
     user = User.new(user_params)
     if user.save
-      render json: user, status: :created
       # I should log them in on sucessful signup
+      # find user
+      user = User.find_by(email: params[:email])
+      if user&.authenticate(params[:password])
+        # send back token
+        token = encode_token(user_id: user.id)
+        render json: { token: token, user: user }, status: :ok
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
